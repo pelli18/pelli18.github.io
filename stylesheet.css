@@ -30,7 +30,7 @@ color: white;
    margin-right: auto;
 }
 
-	#about_body {
+	.about_body {
 	background-image: url("home_button2.png") 
 		width="800" height="600"	
 }
