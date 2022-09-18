@@ -17,9 +17,13 @@ color: white;
     color: orange;
    }
 
- #heading_four {
-          background-color: orange;
-        }
 #paragraph_four{
 	color: white;
 }
+    
+	#bodyy {
+   width: 800px;
+   margin-left: auto;
+   margin-right: auto;
+}
+  
