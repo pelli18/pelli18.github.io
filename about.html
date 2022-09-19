@@ -10,12 +10,17 @@
     color: white;
   }
   .background_image {
-	   background-position: center;
-	   background-image: url('./my_background.jpg');   
-	   background-size: cover;
-	   background-repeat: no-repeat;
-           width: 800px;
-           height: 600px; 
+	   background-image: url('./my_background.jpg'); 
+     height: 100%;
+     width: 800px;
+     width: 100%;
+     height: auto;
+     position: fixed;
+    top: 0;
+    left: 0;
+
+   
+          
  
   
 }
@@ -27,10 +32,10 @@
    margin-left: auto;
    margin-right: auto;
 }
- 
- #images{
-width="250" height="250"
-		}
+  #basketball {
+    float: left;
+
+  }
         
       </style>
       <div class="background_image">
@@ -46,19 +51,20 @@ width="250" height="250"
 <h1 id="heading_four">About Me</h1>
        <p id="paragraph_four"><left>I am a freshman enrolled at URI, currently I am taking CSC 106 and will take the 110 class next semester. I hope to be 
          able to join the cybersecurity program at uri as the scholarships and opportunities seem to be very interesting. I enjoy fishing and going to the beach, in highschool 
-         I played a few sports such as football and baseball, now I only go to the gym. A few pictures of me and my friends are below:
+         I played a few sports such as football and baseball, now I only go to the gym. <br>                           
+         pictures of me and my friends are below:
          </left>
 	       
-<div id="images">
-	<table width "800px">
-
-<img src="basketball_pic.png" width="250" height="250" >
+<img id="basketball" src="basketball_pic.png" width="250" height="250">
 <img src="fishing_pic.jpeg" width="250" height= "250" >
-	<table width "800px">
-<tr>			
-<td align= "center"><img src="friends_pic.jpeg"  width="350" height="200">
-<td align= "center"><img src="graduation_1.jpeg" width="200" height="350">
-	       </div>	       
+
+  <div id="second_row"		
+  <table width="300px">
+    <tr>
+<td align= "left"><img src="friends_pic.jpeg"  width="350" height="200"></td>
+<td align="right"><img src="graduation_1.jpeg" width="200" height="350"></td>
+    </table>       
+</div>       
 	       
 	       
 	       
@@ -68,3 +74,4 @@ width="250" height="250"
              
     </body>
     </html>
+
