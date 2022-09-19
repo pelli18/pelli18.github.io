@@ -26,13 +26,13 @@ color: white;
    margin-left: auto;
    margin-right: auto;
 }
-  #paragraph_four {
+   #paragraph_four {
     color: white;
   }
   .background_image {
 	   background-image: url('./my_background.jpg'); 
-     height: 300%;
-     width: 300%;
+     height: 200vh;
+     width: 200vh;
     top: 0;
     left: 0;
     right:0;
