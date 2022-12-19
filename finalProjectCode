@@ -1,0 +1,438 @@
+/*Starter Code obtained from Khan Academy: https://www.khanacademy.org/computing/computer-programming/programming-games-visualizations/side-scroller/a/scoring-and-winning
+
+
+Global variables */
+
+var lasers = [];
+var currentScene = 1;
+var score = 0;
+var lives = 3;
+var start = millis();
+var assign = 1;
+var rounds = score/8;
+var bitmojiArray = [];
+
+
+var Button = function(config) { 
+    this.x = config.x || 0;
+    this.y = config.y || 0;
+    this.width = config.width || 150;
+    this.height = config.height || 50;
+    this.label = config.label || "Click";
+    this.onClick = config.onClick || function() {};
+    this.color = config.color || color(38, 212, 44);
+    this.textSize = config.textSize || 16;
+}; //Constructor function for all buttons
+
+Button.prototype.draw = function() { 
+    fill(this.color);
+    rect(this.x, this.y, this.width, this.height, 5);
+    fill(3, 3, 3);
+    textAlign(CENTER, CENTER);
+    textSize(this.textSize);
+    text(this.label, this.x+this.width*0.5, this.y+this.height/2);
+}; //Prototype to draw the buttons
+
+Button.prototype.isMouseInside = function() {
+    return mouseX > this.x &&
+           mouseX < (this.x + this.width) &&
+           mouseY > this.y &&
+           mouseY < (this.y + this.height);
+}; //Checks if the users mouse is within the button and executes a change
+
+Button.prototype.handleMouseClick = function() {
+    if (this.isMouseInside()) {
+        this.onClick();
+    }
+}; //Executes the mouseclicked function assigned to buttons
+
+var drawBitmojiHead = function(x, y, h){
+    var p = h / 100;
+
+    noStroke();
+    fill(255, 224, 189); // skin color
+    ellipse(x - 1 * p, y + 50 * p, 83 * p, 100 * p); // head
+
+    fill(227, 254, 255); // white
+    arc(x - 40 * p, y + 92 * p, 28 * p, 55 * p, 0, 361); // left chisel
+    arc(x + 40 * p, y + 92 * p, 28 * p, 55 * p, 0, 361); // right chisel
+
+    fill(218, 207, 155); // hair color
+    quad(x - 50 * p, y + 50 * p, x - 37 * p, y + 18 * p, x - 10 * p, y - 1 * p, x - 30 * p, y + 49 * p); // left hair
+    quad(x + 50 * p, y + 50 * p, x + 37 * p, y + 18 * p, x + 10 * p, y - 1 * p, x + 30 * p, y + 49 * p);//right hair
+
+    noStroke(); // no outline of eyes
+    fill(50, 130, 85); // eye color
+    ellipse(x - 11 * p, y + 49 * p, 10 * p, 5 * p); // left eye
+    ellipse(x + 13 * p, y + 49 * p, 10 * p, 5 * p); // right eye
+
+    stroke(3, 3, 3); // nose outline
+    strokeWeight(1); // nose outline thickness
+    fill(255, 224, 189); // skin color
+    bezier(x - 1 * p, y + 54 * p, x + 22 * p, y + 76 * p, x - 13 * p, y + 75 * p, x - 1 * p, y + 61 * p); // nose
+
+    fill(252, 252, 252); // white
+    arc(x + 1 * p, y + 80 * p, 25 * p, 16 * p, 0, 183); // mouth
+    line(x - 11 * p, y + 80 * p, x + 14 * p, y + 80 * p); // top of mouth
+}; //Connor bitmoji head
+
+var drawBitmojiGradCap = function(x, y, h){
+    var p = h / 100;
+    
+    noStroke();
+    fill(8, 6, 6); // black
+    rect(x - 40 * p, y - 2 * p, 80 * p, 28 * p); // bottom of grad cap
+
+    fill(227, 254, 255); // white
+    arc(x + 41 * p, y - 6 * p, 28 * p, 55 * p, 0, 361); // left of grad cap
+    arc(x - 40 * p, y - 6 * p, 28 * p, 55 * p, 0, 361); // right of grad cap
+
+    fill(8, 6, 6); // black
+    stroke(3, 2, 2); // turn on stroke
+    strokeWeight(10 * p); // top of cap thickness
+    line(x - 50 * p, y - 5 * p, x + 50 * p, y - 5 * p); // top of grad cap
+
+    strokeWeight(5 * p); // tassel thickness
+    stroke(255, 251, 0); // yellow
+    line(x - 50 * p, y - 1 * p, x - 55 * p, y + 90 * p); // left tassel
+    stroke(150, 11, 11); // red
+    line(x - 45 * p, y - 1 * p, x - 50 * p, y + 90 * p); // right tassel
+}; //Connors bitmoji grad cap
+
+var drawBitmojiBody = function(x, y, h) {
+    var p = h/ 100;
+
+    noStroke(); // remove outline
+    fill(8, 3, 3); // black
+    quad(x - 50 * p, y + 100 * p, x + 50 * p, y + 100 * p, x + 90 * p, y + 145 * p, x - 90 * p, y + 145 * p); // body
+
+    fill(255, 187, 0); // gold
+    rect(x - 40 * p, y + 100 * p, 26 * p, 45 * p); // left side sash
+    rect(x + 20 * p, y + 100 * p, 26 * p, 45 * p); // right side sash
+
+    textSize(20 * p); // text size
+    text("CB", x + 3 * p, y + 130 * p); // initials on shirt
+}; //Connors bitmoji body
+
+var drawBitmojiC = function(x, y, h) {
+    drawBitmojiHead(x, y, h);
+    drawBitmojiBody(x, y, h);
+    drawBitmojiGradCap(x, y, h);
+}; //Function to draw all of the different parts of connors bitmoji
+
+var drawHead = function(x, y , bitmojiSize){
+noStroke();
+    fill(241, 194, 125);
+    ellipse(x+(bitmojiSize/200*93), y+(bitmojiSize/200*18), bitmojiSize/200*111,       bitmojiSize/200*129); //head
+    fill(227, 254, 255);
+    arc(x+(bitmojiSize/200*40), y+(bitmojiSize/200*60), bitmojiSize/200*26,            bitmojiSize/200*54, 0, 359); //left arc
+    arc(x+(bitmojiSize/200*146), y+(bitmojiSize/200*56), bitmojiSize/200*26,           bitmojiSize/200*54, 0, 359); //right arc
+    fill(10, 1, 1); //black hair
+    quad(x+(bitmojiSize/200*42), y+(bitmojiSize/200*28), x+(bitmojiSize/200*36), y     +(bitmojiSize/200*49), x+(bitmojiSize/200*61), y-(bitmojiSize/200*38), x           +(bitmojiSize/200*22), y+(bitmojiSize/200*9)); //left hair
+    quad(x+(bitmojiSize/200*167), y+(bitmojiSize/200*21), x+(bitmojiSize/200*143),     y+(bitmojiSize/200*29), x+(bitmojiSize/200*124), y-(bitmojiSize/200*40), x         +(bitmojiSize/200*164), y+(bitmojiSize/200*16));
+    //right hair
+}; //Anthonys bitmoji head
+
+var drawEye= function(x, y, bitmojiSize){  
+    noStroke();
+    fill(255, 255, 255);
+    ellipse(x+(bitmojiSize/200*69), y+(bitmojiSize/200*14), bitmojiSize/200*22,        bitmojiSize/200*17); //left eye
+    ellipse(x+(bitmojiSize/200*113), y+(bitmojiSize/200*14), bitmojiSize/200*22,       bitmojiSize/200*17); //right eye
+    fill(87, 62, 38);
+    ellipse(x+(bitmojiSize/200*69), y+(bitmojiSize/200*14), bitmojiSize/200*10,        bitmojiSize/200*8); //left pupil
+    ellipse(x+(bitmojiSize/200*113), y+(bitmojiSize/200*14), bitmojiSize/200*10,       bitmojiSize/200*8); //right pupil
+    stroke(0, 0, 0);
+    fill(241, 194, 125);
+    bezier(x+(bitmojiSize/200*87), y+(bitmojiSize/200*35), x+(bitmojiSize/200*117),     y+(bitmojiSize/200*36), x+(bitmojiSize/200*97), y+(bitmojiSize/200*35), x          +(bitmojiSize/200*86), y+(bitmojiSize/200*19));
+}; //Anthonys bitmoji eyes
+
+var drawHat = function(x, y, bitmojiSize){
+    noStroke();
+    fill(34, 19, 242);
+    rect(x+(bitmojiSize/200*45), y-(bitmojiSize/200*53), bitmojiSize/200*94, bitmojiSize/200*38); //grad hat
+    rect(x+(bitmojiSize/200*28), y-(bitmojiSize/200*52), bitmojiSize/200*131, bitmojiSize/200*-5); //topo of hat
+    stroke(0,0,0);
+    line(x+(bitmojiSize/200*154), y-(bitmojiSize/200*18),x+(bitmojiSize/200*133),y-(bitmojiSize/200*51)); //hanging
+    noStroke();
+    fill(235, 231, 12); 
+    rect(x+(bitmojiSize/200*148), y-(bitmojiSize/200*18), bitmojiSize/200*10, bitmojiSize/200*27); //gold piece
+    fill(255, 255, 255);
+    fill(255, 255, 255);
+    arc(x+(bitmojiSize/200*96), y+(bitmojiSize/200*57), bitmojiSize/200*30, bitmojiSize/200*16, -39, 180);
+    line(x+(bitmojiSize/200*82),y+(bitmojiSize/200*57),x+(bitmojiSize/200*97),y+(bitmojiSize/200*57));
+    line(x+(bitmojiSize/200*96),y+(bitmojiSize/200*57),x+(bitmojiSize/200*107),y+(bitmojiSize/200*52));
+}; //Anthonys bitmoji grad cap
+
+var drawBitmojiA= function(x, y, bitmojiSize){
+    drawHead(x, y, bitmojiSize);
+    drawEye(x, y, bitmojiSize);
+    drawHat(x, y, bitmojiSize);
+}; //Function to draw all different parts of Anthonys bitmoji   
+
+var BitmojiC = function(x, y) {
+    this.x = x;
+    this.y = y;
+}; // Conor's Bitmoji object class
+
+BitmojiC.prototype.draw = function() {
+    this.x = constrain(this.x, 30, 375);
+    drawBitmojiC(this.x, this.y, 30);
+}; //Connor bitmoji object draw prototype
+
+BitmojiC.prototype.left = function() {
+    this.x -= 2;
+}; //Subtracts from the x value of Conors Bitmoji moving it to the left
+
+BitmojiC.prototype.right = function() {
+    this.x += 2;
+}; //Adds to the x value of Conors Bitmoji moving it to the right
+
+var bitmojiC = new BitmojiC(226, 350); //Object instance of Conors bitmoji
+
+var BitmojiA = function(x, y) {
+    this.x = x;
+    this.y = y;
+}; // Anthony's Bitmoji object class
+
+BitmojiA.prototype.draw = function() {
+    this.y = constrain(this.y, 0, height-50);
+    drawBitmojiA(this.x, this.y, 30);
+}; //Anthony bitmoji object draw prototype
+
+var Laser = function(x, y){
+    this.x = x;
+    this.y = y;
+}; //Laser constructor 
+
+Laser.prototype.draw = function(){
+    noStroke();
+    fill(207, 54, 207);
+    rect(this.x - 5, this.y - 10, 10, 30);
+}; //Prototype to draw the laser
+
+var attackBitmoji = function(x, y){
+    this.x = x;
+    this.y = y;
+}; //Attack bitmoji object class
+
+attackBitmoji.prototype.draw = function() {
+     drawBitmojiA(this.x, this.y, 50);
+}; //Prototype to draw Attack bitmoijs
+
+//All button object instances
+var homeGameButton = new Button({x:150, y:340, width: 100, label:"Start", onClick:function(){currentScene = 2;}});
+
+var homeInfoButton = new Button({x:150, y:280, width:100, label:"Info", onClick:function(){currentScene = 3;}, color:color(230, 76, 132)});
+
+var infoHomeButton = new Button({x:230, y:310, label:"Back to Homepage", onClick:function(){currentScene =1;}, color:color(195, 201, 80)});
+
+var endRestartButton = new Button({x:130, y:250, label:"Restart", onClick:function(){Program.restart();}, color:color(65, 232, 165)});
+
+var endScreen = function(){
+    background(227, 254, 255);
+    textSize(50);
+    textAlign(CENTER, CENTER);
+    text("GAME OVER!", 200, 50);
+    textSize(25);
+    text("Your Score: " + score, 200, 150);
+    endRestartButton.draw();
+}; //End screen outline
+
+var splash = function(){
+    background(227, 254, 255);
+    noStroke();
+    drawBitmojiC(69, 292, 75);
+    drawBitmojiA(267, 335, 125);
+    homeGameButton.draw();
+    homeInfoButton.draw();
+    textAlign(CENTER, CENTER);
+    textSize(50);
+    text("Battle of The\nGraduates", 200, 75);
+    textSize(20);
+    text("By Conor Battell and \nAnthony Pellicone", 200, 175);
+}; //Starting screen outline
+
+var infoScreen = function(){
+    background(227, 254, 255);
+    textSize(50);
+    text("How to Play", 200, 55);
+    textSize(18);
+    text("This game is an aliens vs. spaceship game but\nthe aliens are one of our bitmojis and the\nspaceship is the other bitmoji. You are the bitmoji\nat the bottom and your objective is to not let any\nof the aliens reach the black line. You can shoot\nthe aliens by pressing the space bar and move\nleft and right with the left and right keys.", 197, 179);
+    fill(202, 127, 255);
+    rect(0, 275, 200, 125);
+    fill(8, 8, 8);
+    text("Scoring", 97, 293);
+    text("Hit an Alien: +1 Point", 97, 328);
+    text("Alien Crosses the Line:\nLose a Life", 97, 367);
+    infoHomeButton.draw();
+}; //What is displayed when info button is clicked
+
+Laser.prototype.laserCheck = function(bitmoji){
+    for(var i =0; i < lasers.length; i++){
+        for(var j = 0; j < bitmojiArray .length; j++){
+            if(lasers[i].y < 5){
+                lasers[i].x = -400;
+            }
+            if(lasers[i].y <= (bitmoji[j].y + 10) && lasers[i].x >= (bitmoji[j].x+7)  && lasers[i].x <= (bitmoji[j].x + 37)){
+                     bitmojiArray.splice(j ,1);
+                     score++;
+            }
+        }
+    }
+}; //Checks for all attack bitmojis in range of the laser if they are "hit:
+
+var drawMore = function(){
+    
+if(assign === 1 && bitmojiArray.length < 1){
+    
+        assign = 2;
+        var xPos = [];
+        var yPos = [];
+        
+            for(var i= 0; i < 8; i ++){
+
+                    xPos.push(i * 51);
+                    yPos.push(-30);
+                    bitmojiArray.push(new attackBitmoji(xPos[i], yPos[i] , 50));
+        }
+    } 
+    
+if(assign === 2 && bitmojiArray.length < 1){
+    
+    assign = 3;
+    var xPos = [];
+    var yPos = [];
+    
+        for(var i= 0; i < 8; i ++){
+            xPos.push(i * 51);
+            yPos.push(i * 20);
+            bitmojiArray.push(new attackBitmoji(xPos[i], yPos[i] , 50));
+       
+      } 
+    }
+    
+if(assign === 3 && bitmojiArray.length < 1){
+    assign = 1;
+    var xPos = [];
+    var yPos = [];     
+
+        for(var i= 0; i< 8; i++) {
+            xPos.push((i + 1) * 43); 
+            yPos.push((i % 2) * -54);
+            bitmojiArray.push(new attackBitmoji(xPos[i], yPos[i] , 50));
+}
+}
+}; //Alternates between attack bitmoji layouts each time there are none left on the screen      
+
+mouseClicked = function(){
+    if(currentScene === 1){
+        homeGameButton.handleMouseClick();
+        homeInfoButton.handleMouseClick();
+    }else if(currentScene === 2){
+        
+    }else if(currentScene === 3){
+        infoHomeButton.handleMouseClick();
+    }else if(currentScene === 4){
+        endRestartButton.handleMouseClick();
+    }
+}; //Executes all functions when the mouse is clicked
+
+draw = function() {
+    if(currentScene === 1){
+        
+        splash(); //draws the start screen on scene 1
+        
+    }else if(currentScene === 2){ //Game screen and all layouts
+    
+        background(227, 254, 255);
+        noStroke();
+        fill(0, 0, 0);
+        rect(0, 325, 400, 10);
+        textSize(15);
+        fill(0, 4, 255);
+        text("Score: " + score, 33, 380);
+        text("Lives: ", 28, 355);
+        var timer = millis() - start;
+        text("Timer: " + round(timer/1000), 340, 380);
+        
+if(bitmojiArray.length === 0){  //calls function to change bitmojis when all                                        bitmojis are off screen
+    drawMore();
+    
+}
+        
+for(var i = 0; i < lives; i++){ //For loop to draw the hearts representing "lives"
+    
+    image(getImage("cute/Heart"), 50 + i * 20, 335, 20, 40);
+
+}
+
+bitmojiC.draw(); //Draws conors bitmoji
+        
+if(keyIsPressed && keyCode === LEFT){ //Calls function to move Conor bitmoji left on                                       left arrow
+            bitmojiC.left();
+            
+        }
+    else if(keyIsPressed && keyCode === RIGHT){ //Calls function to move Conor                                                      bitmoji right on right arrow
+            bitmojiC.right();
+        }
+        
+    keyReleased = function(){ //Cant constantly hold the key
+    
+if(key.code === 32){
+    
+                lasers.push(new Laser(bitmojiC.x, bitmojiC.y));  //pushes new laser                                                                  each time space is                                                                  released
+    }
+};
+         
+for (var i = 0; i < bitmojiArray.length; i++) {
+    
+    bitmojiArray[i].draw(); //Draws new bitmoji for each iteration of bitmoji array
+    
+        if(score < 16){
+            
+                bitmojiArray[i].y +=0.5; //starting speed
+            }
+        else if(score >= 16 && score < 40){
+            
+                bitmojiArray[i].y +=0.75; //increases speed at score 16
+        
+            }
+        else if(score >= 40){
+            
+                bitmojiArray[i].y +=1; //increases speed at score 40
+                
+            }
+            
+if(bitmojiArray[i].y >= 325 && bitmojiArray[i].x >= 0 && bitmojiArray[i].x <= 400){
+    
+                lives--; 
+                bitmojiArray.splice(i, 1); //subtracts life and removes bitmoji from                                            array if they cross the line
+    }
+}
+    
+for (var i = 0; i < lasers.length; i++) { //Draws a new laser and "shoots" it up for                                           each laser instance. uses prototype if it                                           hits a bitmoji
+    
+            lasers[i].draw();
+            lasers[i].y -= 5;
+            lasers[i].laserCheck(bitmojiArray);
+            
+}
+        
+if(lives <= 0){ //When the lives are equal to 0 changes the scene to 4
+    
+    currentScene = 4; 
+    
+    }
+}
+else if(currentScene === 3){  //if the scene is 3 display the info
+    
+        infoScreen();
+        
+}
+
+else if(currentScene === 4){ //When the current scene is 4 display endscreen
+    
+        endScreen();
+}
+
+};
